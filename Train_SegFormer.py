@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 #SegFormer
-from Model_SegFormer import SegFormer_B3
+from Model_SegFormer import SegFormer_B2
 
 import json
 from Load_Data import DataGenerator_train
@@ -36,29 +36,40 @@ def get_project_dir():
     return project_directory
 
 # Set training hyperparameters 
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 LEARNING_RATE = 0.0001
 LEARNING_RATE_DECAY_FACTOR = 0.1
 LEARNING_RATE_DECAY_PATIENCE = 2
 EARLY_STOPPING_PATIENCE = 10
-EPOCHS = 60
+EPOCHS = 80
 
 if __name__ == '__main__':
 
-    # 10W images from synthetic dataset 
+    # Load training data and divide into two parts: training set and testing set 
     split_ratio = 0.7
-    data = [str(i) for i in range(40000, 140000)]
-    random.shuffle(data)
+    with open(f'{get_project_dir()}\\train.txt', 'r') as file:
+        data = file.read().split("\n")[:-1]
+        random.shuffle(data)
     idx = int(np.floor(len(data) * (split_ratio)))
     train_list = data[0:idx]
     val_list = data[idx:-1]
-    np.save('val_list.npy', np.array(val_list))
+
+    # Load json file
+    json_file_path = f"{get_project_dir()}\\data_dict.json"
+    with open(json_file_path, 'r') as json_file:
+        data_json = json.load(json_file)
     
     # Load synthetic data 
     json_file_path = f"{get_project_dir()}\\syn_data_dict.json"
     with open(json_file_path, 'r') as json_file:
-        data_json = json.load(json_file)
+        syn_json = json.load(json_file)
+    selected_keys = random.sample(list(syn_json.keys()), 10000)
+    syn_json = {key: syn_json[key] for key in selected_keys}
 
+    # combine with training data 
+    train_list = train_list + list(syn_json.keys())
+    data_json.update(syn_json)
+        
     # Use DataGenerator to generate train batch and val batch
     train, train_count = DataGenerator_train(dir='train', img_list=train_list, data_json=data_json, IsAugmentation=True, batch_size=BATCH_SIZE)
     val, val_count  = DataGenerator_train(dir='val', img_list=val_list, data_json=data_json, IsAugmentation=False, batch_size=BATCH_SIZE)
@@ -83,7 +94,7 @@ if __name__ == '__main__':
     callbacks_list = [checkpoint, Reduce, early_stopping, csv_logger] 
 
     # Load model and set complie
-    net_final = SegFormer_B3(input_shape = (256,256,3), num_classes = 19)
+    net_final = SegFormer_B2(input_shape = (256,256,3), num_classes = 19)
     net_final.summary()
     net_final.compile(optimizer=optimizers.Adam(lr=LEARNING_RATE),
                       loss=bce_dice_loss,

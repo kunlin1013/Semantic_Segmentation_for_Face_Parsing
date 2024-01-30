@@ -6,6 +6,7 @@ from CSV_process.csv_utils import array2csv
 from segmentation_models.metrics import iou_score
 from segmentation_models.losses import  bce_dice_loss
 from Load_Data import DataGenerator_test
+from thresholding import convert_binary_adaptive_thres
 from thresholding import convert_binary
 
 labels_celeb = ['background','skin','nose',
@@ -19,7 +20,7 @@ custom_objects = {"binary_crossentropy_plus_dice_loss" : bce_dice_loss,
                   }
 
 BATCH_SIZE = 16
-NUM_IMAGE_ITER = 500
+NUM_IMAGE_ITER = 300
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -48,9 +49,14 @@ if __name__ == '__main__':
     json_file_path = f"{get_project_dir()}\\data_dict.json"
     with open(json_file_path, 'r') as json_file:
         data_json = json.load(json_file)
+    
 
     # Load trained model
-    net_final = tf.keras.models.load_model('DLinkNet-weights-improvement-47-0.258.h5',custom_objects=custom_objects)
+    net_final1 = tf.keras.models.load_model('.\Weight\DLinkNet\8809-31-0.252.h5',custom_objects=custom_objects)
+    net_final2 = tf.keras.models.load_model('.\Weight\DLinkNet\8808-44-0.261.h5',custom_objects=custom_objects)
+    net_final3 = tf.keras.models.load_model('.\Weight\DLinkNet\8791-33-0.267.h5',custom_objects=custom_objects)
+    net_final4 = tf.keras.models.load_model('.\Weight\DLinkNet\8781-59-0.281.h5',custom_objects=custom_objects)
+    net_final5 = tf.keras.models.load_model('.\Weight\DLinkNet\8768-47-0.258.h5',custom_objects=custom_objects)
 
     # Iteratively predict masks
     num_total_image = len(test_list)
@@ -66,25 +72,19 @@ if __name__ == '__main__':
                                               data_json=data_json,
                                               IsAugmentation=False,
                                               batch_size=BATCH_SIZE)
-        predict_test = net_final.predict(test, verbose=1)
-    
-        # Set threshold for binary conversion
-        # # Threshold using mean
-        # threshold = np.mean(predict_test, axis=(1, 2))
-        # threshold = threshold[:, np.newaxis, np.newaxis, :]
+        predict_test1 = net_final1.predict(test, verbose=1)
+        predict_test2 = net_final2.predict(test, verbose=1)
+        predict_test3 = net_final3.predict(test, verbose=1)
+        predict_test4 = net_final4.predict(test, verbose=1)
+        predict_test5 = net_final5.predict(test, verbose=1)
+        
+        all_predict = (predict_test1 + predict_test2 + predict_test3 + predict_test4 + predict_test5) / 5
     
         # Threshold using fixed value
-        predict_result = convert_binary(predict_test, 0.8)
-    
-        # # Threshold by using Otsu's algorithm
-        # predict_result = convert_binary_otsu(predict_test)     # need to "from thresholding import convert_binary_otsu"
+        predict_result = convert_binary(all_predict, 0.7)
     
         # Set background to zero
         predict_result[:, :, :, 0] = np.zeros(predict_result.shape[:3])
-    
-        # # Display binary results after thresold
-        # img_path = data_json[test_list[0]]['filepath']
-        # plot_result(img_path, predict_mask)   # need to "from show_image import plot_result"
     
         # Convert prediction to .csv fiile
         array2csv(predict_result, starting_image_id=starting_image_id, header_needed=is_first_row)

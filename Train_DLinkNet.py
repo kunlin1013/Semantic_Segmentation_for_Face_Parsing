@@ -17,7 +17,6 @@ from tensorflow.keras.callbacks import CSVLogger
 from segmentation_models.metrics import iou_score
 from segmentation_models.losses import bce_dice_loss
 
-
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:

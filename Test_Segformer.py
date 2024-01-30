@@ -21,21 +21,6 @@ labels_celeb = ['background','skin','nose',
                 'u_lip','l_lip','hair','hat',
                 'ear_r','neck_l','neck','cloth']
 
-# def dice_loss(y_true, y_pred):
-#     numerator = 2 * tf.reduce_sum(y_true * y_pred)
-#     denominator = tf.reduce_sum(y_true + y_pred)
-#     return 1 - numerator / denominator
-
-# def bce_dice_loss(y_true, y_pred):
-#     bce = tf.keras.losses.binary_crossentropy(y_true, y_pred)
-#     dice = dice_loss(y_true, y_pred)
-#     return bce + dice
-
-# def iou_score(y_true, y_pred):
-#     intersection = tf.reduce_sum(y_true * y_pred)
-#     union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred) - intersection
-#     return (intersection + 1e-6) / (union + 1e-6)
-
 custom_objects = {"Attention" :  Attention,
                   "MLP" : MLP,
                   "ConvModule" : ConvModule,
@@ -52,7 +37,7 @@ custom_objects = {"Attention" :  Attention,
                   }
 
 BATCH_SIZE = 16
-NUM_IMAGE_ITER = 500
+NUM_IMAGE_ITER = 300
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -83,7 +68,9 @@ if __name__ == '__main__':
         data_json = json.load(json_file)
 
     # Load trained model
-    net_final = tf.keras.models.load_model('./Model/Segformer/weights-improvement-33-0.243.h5',custom_objects=custom_objects)
+    net_final1 = tf.keras.models.load_model(r'.\Weight\Segformer\8821-35-0.230.h5',custom_objects=custom_objects)
+    net_final2 = tf.keras.models.load_model(r'.\Weight\Segformer\8805-31-0.242.h5',custom_objects=custom_objects)
+    net_final3 = tf.keras.models.load_model(r'.\Weight\Segformer\8760-25-0.234.h5',custom_objects=custom_objects)
 
     # Iteratively predict masks
     num_total_image = len(test_list)
@@ -99,19 +86,15 @@ if __name__ == '__main__':
                                               data_json=data_json,
                                               IsAugmentation=False,
                                               batch_size=BATCH_SIZE)
-        predict_test = net_final.predict(test, verbose=1)
+        predict_test1 = net_final1.predict(test, verbose=1)
+        predict_test2 = net_final2.predict(test, verbose=1)
+        predict_test3 = net_final3.predict(test, verbose=1)
     
-        # Set threshold for binary conversion
-        # # Threshold using mean
-        # threshold = np.mean(predict_test, axis=(1, 2))
-        # threshold = threshold[:, np.newaxis, np.newaxis, :]
+        all_predict = (predict_test1 + predict_test2 + predict_test3) / 3.0
     
         # Threshold using fixed value
-        predict_result = convert_binary(predict_test, 0.8)
-    
-        # # Threshold by using Otsu's algorithm
-        # predict_result = convert_binary_otsu(predict_test)     # need to "from thresholding import convert_binary_otsu"
-    
+        predict_result = convert_binary(all_predict, 0.7)
+     
         # Set background to zero
         predict_result[:, :, :, 0] = np.zeros(predict_result.shape[:3])
     
