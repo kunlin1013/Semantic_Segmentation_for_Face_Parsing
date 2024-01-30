@@ -41,6 +41,9 @@ Please see the [kaggle website](https://www.kaggle.com/competitions/cs6550-face-
 |    |-- modules.py: Modules implementation
 |    |-- segformer.py: SegFormer model implementation
 |
+|-- CSV_process
+|    |--csv_utils.py: Output a CSV file in the format requested by the TA
+|
 |-- CelebAMask-HQ: Dataset for training and testing
 |
 |-- thresholding.py: Thresholding method implementation, used for post-processing
@@ -54,6 +57,19 @@ Please see the [kaggle website](https://www.kaggle.com/competitions/cs6550-face-
 |-- Test_SegFormer_unseen.py: Inference using SegFormer on unseen data
 ```
 
+## How to run the code
+
+- The code is written in Python and tested on Window OS.
+- To run the code, utilize VSCode environment or open a terminal and type `python *file_name*.py` in this directory.
+    - E.g., type `python ./Train_DLinkNet.py` in the terminal to train DLinkNet.
+- For `Train_DLinkNet.py` and `Train_SegFormer.py`:
+    - After the training is done, the weight of model will be saved in the directory same as training script.
+    - The file name of the checkpoint is named in the format of `weights-improvement-*epoch*-*validation_loss*.h5`.
+    - Note that it may take **about 10 hours** to train the model for 60 epochs.
+- For `Test_DLinkNet.py`, `Test_SegFormer.py` and `Test_SegFormer_unseen.py`:
+    - The provided code for `Test_DLinkNet.py` and `Test_SegFormer.py` are the version for testing on CelebAMask-HQ, which utilize the **bagging** technique as mentioned in the report.
+    - The provided code for `Test_SegFormer_unseen.py` is the version for testing on unseen data. To test for different weight, one should modify the weight path in the code, the location is near **line 73**.
+    - Note that one should **delete the .csv file** before inference since the generation of the file is written in a appending way.
 
 
 
