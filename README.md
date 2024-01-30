@@ -1,22 +1,22 @@
-# NTHU's CV (Computer Vision) final competition - Face Parsing
-## Kaggle link
+## NTHU's CV (Computer Vision) final competition - Face Parsing
+### Kaggle link
 <https://www.kaggle.com/competitions/cs6550-face-parsing/overview>
 
 <https://www.kaggle.com/competitions/cs6550_face_parsing_unseen/overview>
 
-## Training and Testing data 
+### Training and Testing data 
 <https://github.com/switchablenorms/CelebAMask-HQ>
 
 <https://github.com/microsoft/FaceSynthetics>
 
 Please see the [kaggle website](https://www.kaggle.com/competitions/cs6550-face-parsing/overview), it will assist in dividing the training and testing sets.
 
-## Reference paper
+### Reference paper
 [D-LinkNet](https://ieeexplore.ieee.org/document/8575492)
 
 [SegFormer](https://arxiv.org/abs/2105.15203)
 
-## Reference version of packages
+### Reference version of packages
 ```
 - Python                3.7.9
 - numpy                 1.16.2
@@ -27,7 +27,7 @@ Please see the [kaggle website](https://www.kaggle.com/competitions/cs6550-face-
 - segmentation-models   1.0.1
 ```
 
-## Directory structure
+### Directory structure
 ```
 |-- Model_DLinkNet
 |    |-- ResNet_Block.py: ResNet block implementation
@@ -57,7 +57,7 @@ Please see the [kaggle website](https://www.kaggle.com/competitions/cs6550-face-
 |-- Test_SegFormer_unseen.py: Inference using SegFormer on unseen data
 ```
 
-## How to run the code
+### How to run the code
 
 - The code is written in Python and tested on Window OS.
 - To run the code, utilize VSCode environment or open a terminal and type `python *file_name*.py` in this directory.
