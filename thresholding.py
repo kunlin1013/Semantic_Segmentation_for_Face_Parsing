@@ -24,7 +24,7 @@ def convert_binary_otsu(image_matrix):
     
     return result
 
-def convert_binary_roc(image_matrix, thresh_list):
+def convert_binary_adaptive_thres(image_matrix, thresh_list):
     # Pxiel values for white and black
     white = 255
     black = 0
